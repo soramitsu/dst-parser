@@ -17,11 +17,12 @@
  * 
  * Example code:
  * 
+ *     ```ts
  *     import { ExampleParser } from "./example_parser"
  *     let text: string = "// BEGIN FRAGMENT: test\nHello.\n// END FRAGMENT"
  *     let parser_inst: ExampleParser = new ExampleParser(text)
  *     console.log(parser_inst.mapLines())
- * 
+ *     ```
  */
 
 // A custom error type to be used with broken syntax
