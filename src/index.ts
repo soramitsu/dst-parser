@@ -69,7 +69,7 @@ let removeCommonIndentation = function(lines: Array<string>) {
 
 // Checks if whitespaces and tabs of a given prefix length are equal for all provided lines
 export function spaceSectionIsEqual(lines: Array<string>, prefixLen: number) {
-    let prefixes = lines.map(line => {return line.slice(0, prefixLen)})
+    let prefixes = lines.map(line => line.slice(0, prefixLen))
     let prefixIsTrimmable = lines[0].slice(0, prefixLen).trim().length === 0
     let prefixesAreEqual = prefixes.every( v => (v === lines[0].slice(0, prefixLen)) )
     return prefixIsTrimmable && prefixesAreEqual
