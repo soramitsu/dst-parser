@@ -17,10 +17,11 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
-    "watch": "npm run build -- --watch src",
-    "prepublishOnly": "npm run build",
+    "watch": "pnpm run build -- --watch src",
+    "prepublishOnly": "pnpm run build",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "preinstall": "npx only-allow pnpm"
   },
   "keywords": [
     "documentation",
