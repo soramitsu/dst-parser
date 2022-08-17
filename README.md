@@ -1,12 +1,11 @@
 # Example docstring parser
 
-A source code docstring parser for a custom C-like (including C++, JavaScript, Rust)
-and Python-like syntax, where documentation sections are marked in comments using
-`FRAGMENT` and `ESCAPE` statements.
+The docstring parser for C-like (including C++, JavaScript, Rust)
+and Python-like syntax, where code that should be included in documentation is marked with custom comments.
 
 ## Syntax
 
-A text is considered a named fragment when it is located between `// BEGIN FRAGMENT: <name>` and `// END FRAGMENT`, `<>` not included. This syntax is case-sensitive.
+A piece of code is considered a named fragment when it is located between `// BEGIN FRAGMENT: <name>` and `// END FRAGMENT`, `<>` not included. This syntax is case-sensitive.
 
 Don't use special characters in names; `snakeCase` is preferrable.
 
