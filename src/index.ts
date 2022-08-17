@@ -25,11 +25,12 @@
  */
 
 // A custom error type to be used with broken syntax
-export function ExampleSyntaxError(message = '') {
-    this.name = 'ExampleSyntaxError';
-    this.message = message;
+export class ExampleSyntaxError extends Error {
+    constructor(message:string = '') {
+      super(message)
+      this.message = message
+    }
 }
-ExampleSyntaxError.prototype = Error.prototype;
 
 // Obtain a range of numbers as an array, including the end
 let range = function(start: number, end: number): Array<number> {
