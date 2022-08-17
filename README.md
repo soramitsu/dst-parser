@@ -29,7 +29,7 @@ npm install dst-parser -g
 
 ## Example code
 
-```rust
+```ts
 import { ExampleParser } from "dst-parser"
 let text = `
 // BEGIN FRAGMENT: Test
