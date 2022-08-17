@@ -1,6 +1,5 @@
-declare function ExampleSyntaxError(message?: string): void;
-declare namespace ExampleSyntaxError {
-    var prototype: Error;
+declare class ExampleSyntaxError extends Error {
+    constructor(message?: string);
 }
 declare function trimEmptyLines(lines: Array<string>): string[];
 declare class ExampleParser {

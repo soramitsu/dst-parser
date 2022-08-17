@@ -1,9 +1,10 @@
 // src/index.ts
-function ExampleSyntaxError(message = "") {
-  this.name = "ExampleSyntaxError";
-  this.message = message;
-}
-ExampleSyntaxError.prototype = Error.prototype;
+var ExampleSyntaxError = class extends Error {
+  constructor(message = "") {
+    super(message);
+    this.message = message;
+  }
+};
 var range = function(start, end) {
   let src = Array.from(Array(end - start + 1).keys());
   return src.map((x) => x + start);
@@ -19,19 +20,19 @@ function trimEmptyLines(lines) {
   return lines;
 }
 var clearIndentation = function(lines) {
-  let common_indent = getCommonStartPadding(lines);
+  let commonIndent = getCommonStartPadding(lines);
   return lines.map(
     (line) => {
-      return line.slice(common_indent);
+      return line.slice(commonIndent);
     }
   );
 };
-function spaceSectionEquals(lines, prefix_len) {
+function spaceSectionEquals(lines, prefixLen) {
   let prefixes = lines.map((line) => {
-    return line.slice(0, prefix_len);
+    return line.slice(0, prefixLen);
   });
-  let prefixIsTrimmable = lines[0].slice(0, prefix_len).trim().length === 0;
-  let prefixesAreEqual = prefixes.every((v) => v === lines[0].slice(0, prefix_len));
+  let prefixIsTrimmable = lines[0].slice(0, prefixLen).trim().length === 0;
+  let prefixesAreEqual = prefixes.every((v) => v === lines[0].slice(0, prefixLen));
   return prefixIsTrimmable && prefixesAreEqual;
 }
 function getCommonStartPadding(lines) {
@@ -49,10 +50,10 @@ function getCommonStartPadding(lines) {
   return knownMaxLen;
 }
 var exampleRegExps = {
-  begin_fragment: new RegExp("[s	]*(//|#) (BEGIN FRAGMENT): ([A-Za-z_-]+)[s	]*"),
-  end_fragment: new RegExp("[s	]*(//|#) (END FRAGMENT)[s	]*"),
-  begin_escape: new RegExp("[s	]*(//|#) (BEGIN ESCAPE)[s	]*"),
-  end_escape: new RegExp("[s	]*(//|#) (END ESCAPE)[s	]*")
+  beginFragment: new RegExp("[s	]*(//|#) (BEGIN FRAGMENT): ([A-Za-z_-]+)[s	]*"),
+  endFragment: new RegExp("[s	]*(//|#) (END FRAGMENT)[s	]*"),
+  beginEscape: new RegExp("[s	]*(//|#) (BEGIN ESCAPE)[s	]*"),
+  endEscape: new RegExp("[s	]*(//|#) (END ESCAPE)[s	]*")
 };
 var ExampleParser = class {
   constructor(content) {
@@ -61,16 +62,16 @@ var ExampleParser = class {
   detectLineType(line) {
     let result = null;
     let matchTmp;
-    if (matchTmp = line.match(exampleRegExps.begin_fragment)) {
+    if (matchTmp = line.match(exampleRegExps.beginFragment)) {
       result = [matchTmp[2], matchTmp[3]];
     }
-    if (matchTmp = line.match(exampleRegExps.end_fragment)) {
+    if (matchTmp = line.match(exampleRegExps.endFragment)) {
       result = [matchTmp[2]];
     }
-    if (matchTmp = line.match(exampleRegExps.begin_escape)) {
+    if (matchTmp = line.match(exampleRegExps.beginEscape)) {
       result = [matchTmp[2]];
     }
-    if (matchTmp = line.match(exampleRegExps.end_escape)) {
+    if (matchTmp = line.match(exampleRegExps.endEscape)) {
       result = [matchTmp[2]];
     }
     return result;
@@ -78,14 +79,14 @@ var ExampleParser = class {
   retrieveTextSection(start, end, ignore) {
     let result = null;
     if (end > start) {
-      let tmp_result = [];
+      let tmpResult = [];
       for (let lineId = start; lineId < end; lineId++) {
         if (ignore.indexOf(lineId) == -1)
-          tmp_result.push(this.lines[lineId]);
+          tmpResult.push(this.lines[lineId]);
       }
-      if (tmp_result.length > 0) {
+      if (tmpResult.length > 0) {
         result = clearIndentation(
-          trimEmptyLines(tmp_result)
+          trimEmptyLines(tmpResult)
         ).join("\n");
       }
     }
@@ -148,11 +149,11 @@ var ExampleParser = class {
       );
     }
     for (let fsid = 0; fsid < fragmentSections.length; fsid++) {
-      let start_line_id = fragmentSections[fsid][0];
-      let end_line_id = fragmentSections[fsid][1];
+      let startLineId = fragmentSections[fsid][0];
+      let endLineId = fragmentSections[fsid][1];
       let textSection = this.retrieveTextSection(
-        start_line_id,
-        end_line_id,
+        startLineId,
+        endLineId,
         escapeList
       );
       if (textSection) {
