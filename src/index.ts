@@ -57,18 +57,18 @@ export function trimEmptyLines(lines: Array<string>) {
 // Clear line indentation for an array of strings containing the lines
 let clearIndentation = function(lines: Array<string>) {
     // Calculate a padding common for all the lines
-    let common_indent: number = getCommonStartPadding(lines)
+    let commonIndent: number = getCommonStartPadding(lines)
     // Return the lines with a common indentation removed
     return lines.map(
-        line => {return line.slice(common_indent) }
+        line => {return line.slice(commonIndent) }
     )
 }
 
 // Checks if whitespaces and tabs of a given prefix length are equal for all provided lines
-function spaceSectionEquals(lines: Array<string>, prefix_len: number) {
-    let prefixes = lines.map(line => {return line.slice(0, prefix_len)})
-    let prefixIsTrimmable = lines[0].slice(0, prefix_len).trim().length === 0
-    let prefixesAreEqual = prefixes.every( v => (v === lines[0].slice(0, prefix_len)) )
+function spaceSectionEquals(lines: Array<string>, prefixLen: number) {
+    let prefixes = lines.map(line => {return line.slice(0, prefixLen)})
+    let prefixIsTrimmable = lines[0].slice(0, prefixLen).trim().length === 0
+    let prefixesAreEqual = prefixes.every( v => (v === lines[0].slice(0, prefixLen)) )
     return prefixIsTrimmable && prefixesAreEqual
 }
 
@@ -89,10 +89,10 @@ function getCommonStartPadding(lines: Array<string>) {
 
 // Regular expressions, used to parse the examples
 const exampleRegExps: { [id: string] : RegExp; } = {
-    begin_fragment: new RegExp('[\s\t]*(\/\/|#) (BEGIN FRAGMENT): ([A-Za-z_\-]+)[\s\t]*'),
-    end_fragment: new RegExp('[\s\t]*(\/\/|#) (END FRAGMENT)[\s\t]*'),
-    begin_escape: new RegExp('[\s\t]*(\/\/|#) (BEGIN ESCAPE)[\s\t]*'),
-    end_escape: new RegExp('[\s\t]*(\/\/|#) (END ESCAPE)[\s\t]*'),
+    beginFragment: new RegExp('[\s\t]*(\/\/|#) (BEGIN FRAGMENT): ([A-Za-z_\-]+)[\s\t]*'),
+    endFragment: new RegExp('[\s\t]*(\/\/|#) (END FRAGMENT)[\s\t]*'),
+    beginEscape: new RegExp('[\s\t]*(\/\/|#) (BEGIN ESCAPE)[\s\t]*'),
+    endEscape: new RegExp('[\s\t]*(\/\/|#) (END ESCAPE)[\s\t]*'),
 }
 
 // A stack machine that collects the examples
@@ -108,16 +108,16 @@ export class ExampleParser {
     detectLineType(line: string): Array<string> | null {
         let result: Array<string> | null = null
         let matchTmp: RegExpMatchArray | null
-        if ((matchTmp = line.match(exampleRegExps.begin_fragment))) {
+        if ((matchTmp = line.match(exampleRegExps.beginFragment))) {
             result = [ matchTmp[2], matchTmp[3] ]
         }
-        if ((matchTmp = line.match(exampleRegExps.end_fragment))) {
+        if ((matchTmp = line.match(exampleRegExps.endFragment))) {
             result = [ matchTmp[2] ]
         }
-        if ((matchTmp = line.match(exampleRegExps.begin_escape))) {
+        if ((matchTmp = line.match(exampleRegExps.beginEscape))) {
             result = [ matchTmp[2] ]
         }
-        if ((matchTmp = line.match(exampleRegExps.end_escape))) {
+        if ((matchTmp = line.match(exampleRegExps.endEscape))) {
             result = [ matchTmp[2] ]
         }
         return result
@@ -128,13 +128,13 @@ export class ExampleParser {
     retrieveTextSection(start: number, end: number, ignore: Array<number>): string | null {
         let result: string | null = null
         if (end > start) {
-            let tmp_result: Array<string> = []
+            let tmpResult: Array<string> = []
             for (let lineId = start; lineId < end; lineId++) {
-                if (ignore.indexOf(lineId) == -1) tmp_result.push(this.lines[lineId])
+                if (ignore.indexOf(lineId) == -1) tmpResult.push(this.lines[lineId])
             }
-            if (tmp_result.length > 0) {
+            if (tmpResult.length > 0) {
                 result = clearIndentation(
-                    trimEmptyLines(tmp_result)
+                    trimEmptyLines(tmpResult)
                 ).join('\n')
             }
         } 
@@ -214,10 +214,10 @@ export class ExampleParser {
         }
         // Fill the fragment map with the stack machine results
         for (let fsid = 0; fsid < fragmentSections.length; fsid++) {
-            let start_line_id = fragmentSections[fsid][0]
-            let end_line_id = fragmentSections[fsid][1]
+            let startLineId = fragmentSections[fsid][0]
+            let endLineId = fragmentSections[fsid][1]
             let textSection = this.retrieveTextSection(
-                start_line_id, end_line_id, escapeList
+                startLineId, endLineId, escapeList
             )
             if (textSection) {
                 fragmentMap[fragmentSections[fsid][2]] = textSection
