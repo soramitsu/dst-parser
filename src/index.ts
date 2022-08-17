@@ -49,14 +49,16 @@ function emptySpace(str: string) {
 // in an array of lines
 export function trimEmptyLines(lines: Array<string>) {
     // Remove the first and the last string if those are
-    // filled with spaces or empty
-    while (emptySpace(lines.at(0) || '')) lines.shift()
-    while (emptySpace(lines.at(-1) || '')) lines.pop()
+    // filled with spaces or empty.
+    // If the lines are empty, 'stub' string replaces undefined,
+    // so there's no infinite cycle.
+    while (lines && (emptySpace(lines.at(0) || 'stub'))) lines.shift()
+    while (lines && (emptySpace(lines.at(-1) || 'stub'))) lines.pop()
     return lines
 }
 
 // Clear line indentation for an array of strings containing the lines
-let clearIndentation = function(lines: Array<string>) {
+let removeCommonIndentation = function(lines: Array<string>) {
     // Calculate a padding common for all the lines
     let commonIndent: number = getCommonStartPadding(lines)
     // Return the lines with a common indentation removed
@@ -66,7 +68,7 @@ let clearIndentation = function(lines: Array<string>) {
 }
 
 // Checks if whitespaces and tabs of a given prefix length are equal for all provided lines
-function spaceSectionEquals(lines: Array<string>, prefixLen: number) {
+export function spaceSectionIsEqual(lines: Array<string>, prefixLen: number) {
     let prefixes = lines.map(line => {return line.slice(0, prefixLen)})
     let prefixIsTrimmable = lines[0].slice(0, prefixLen).trim().length === 0
     let prefixesAreEqual = prefixes.every( v => (v === lines[0].slice(0, prefixLen)) )
@@ -74,13 +76,13 @@ function spaceSectionEquals(lines: Array<string>, prefixLen: number) {
 }
 
 // Finds a minimum padding length
-function getCommonStartPadding(lines: Array<string>) {
+export function getCommonStartPadding(lines: Array<string>) {
     let knownMaxLen = 0
     let currentLen = 0
     if (lines.length) {
         while (true) {
             currentLen++
-            if (spaceSectionEquals(lines, currentLen)) {
+            if (spaceSectionIsEqual(lines, currentLen)) {
                 knownMaxLen = currentLen
             } else break
         }
@@ -134,7 +136,7 @@ export class ExampleParser {
                 if (ignore.indexOf(lineId) == -1) tmpResult.push(this.lines[lineId])
             }
             if (tmpResult.length > 0) {
-                result = clearIndentation(
+                result = removeCommonIndentation(
                     trimEmptyLines(tmpResult)
                 ).join('\n')
             }

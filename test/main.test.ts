@@ -1,5 +1,5 @@
 import { parseFile, parseStr } from './test_util'
-import { ExampleSyntaxError, trimEmptyLines } from "../src/index"
+import { ExampleSyntaxError, trimEmptyLines, getCommonStartPadding } from "../src/index"
 import { describe, expect, it } from 'vitest'
 
 describe('Common tests', function () {
@@ -9,11 +9,34 @@ describe('Common tests', function () {
       expect(parsed).toStrictEqual(expected)
     })
 
-    it('can trim empty lines, which may change indentation otherwise', function () {
+    it('can trim empty lines at the start, which may change indentation otherwise', function () {
         let actual_text = 'Source code is expected to be here'
-        let lines = ['  ', '   ', actual_text, '\t  ', '  \t']
+        let lines = ['  ', '   ', actual_text]
         let trimmed = trimEmptyLines(lines)
         expect(trimmed).toStrictEqual([actual_text])
+    })
+
+    it('can trim empty lines at the end, which may change indentation otherwise', function () {
+        let actual_text = 'Source code is expected to be here'
+        let lines = [actual_text, '\t  ', '  \t']
+        let trimmed = trimEmptyLines(lines)
+        expect(trimmed).toStrictEqual([actual_text])
+    })
+
+    it('can handle empty line lists that can not be trimmed', function () {
+        let actual_lines = []
+        let lines = []
+        let trimmed = trimEmptyLines(lines)
+        expect(trimmed).toStrictEqual(actual_lines)
+    })
+
+    it('can find a common start padding', function () {
+        let lines = ['    a', '    b', '    c']
+        let padding = getCommonStartPadding(lines)
+        expect(padding).toStrictEqual(4)
+        lines = ['    a', '  b', '   c']
+        padding = getCommonStartPadding(lines)
+        expect(padding).toStrictEqual(2)
     })
 })
 
@@ -132,7 +155,8 @@ describe('Python syntax tests', function () {
     it('Indentation levels', () => {
         let parsed = parseFile('./test/samples/code_section_2.py')
         let expected = {
-            "PythonStyleFragment": "def main():\n    print(\"A normal Rust-style fragment\")",
+            "PythonStyleFragmentA": "def main():\n    print(\"A normal Pythonic fragment\")",
+            "PythonStyleFragmentB": "self.a = 0\nself.b = 1",
         }
         expect(parsed).toStrictEqual(expected)
     })
