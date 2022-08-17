@@ -15,8 +15,17 @@ Elements between `// BEGIN ESCAPE` and `// END ESCAPE` are excluded unconditiona
 
 ## Installation
 
-* `npm install dst-parser --save-dev` if you want to install it as a development dependency of your package.
-* `npm install dst-parser -g` to install the parser globally.
+Install the parser as a development dependency of your package:
+
+```bash
+npm install dst-parser --save-dev
+```
+
+Install the parser globally:
+
+```bash
+npm install dst-parser -g
+```
 
 ## Example code
 
