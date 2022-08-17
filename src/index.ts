@@ -63,7 +63,7 @@ let removeCommonIndentation = function(lines: Array<string>) {
     let commonIndent: number = getCommonStartPadding(lines)
     // Return the lines with a common indentation removed
     return lines.map(
-        line => {return line.slice(commonIndent) }
+        line => line.slice(commonIndent)
     )
 }
 
