@@ -1,4 +1,4 @@
-# Example docstring parser
+# Docstring Parser
 
 The docstring parser for C-like (including C++, JavaScript, Rust)
 and Python-like syntax, where code that should be included in documentation is marked with custom comments.
