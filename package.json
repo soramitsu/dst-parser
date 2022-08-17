@@ -10,7 +10,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "This package contains a parser for a custom docstring syntax",
   "directories": {
     "test": "test"
