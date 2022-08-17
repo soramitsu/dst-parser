@@ -1,8 +1,7 @@
 # Example docstring parser
 
-A source code docstring parser for a custom C-like (including C++, JavaScript, Rust)
-and Python-like syntax, where documentation sections are marked in comments using
-`FRAGMENT` and `ESCAPE` statements.
+The docstring parser for C-like (including C++, JavaScript, Rust)
+and Python-like syntax, where code that should be included in documentation is marked with custom comments.
 
 ## Syntax
 
