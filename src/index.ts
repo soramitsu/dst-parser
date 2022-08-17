@@ -42,7 +42,7 @@ let range = function(start: number, end: number): Array<number> {
 // Check if the string is empty or contains
 // only the space and tabulation characters
 function emptySpace(str: string) {
-    return str.trim().length === 0
+    return !str.trim().length
 }
 
 // Remove empty strings at both start and end
