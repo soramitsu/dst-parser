@@ -76,51 +76,51 @@ describe('Exception handling tests: common', () => {
 
 describe('Exception handling tests: pythonic syntax', () => {
     it('throws an exception when a "BEGIN FRAGMENT" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_begin_fragment.py')
+        const unmatched = () => parseFile('unmatched_begin_fragment.py')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "END FRAGMENT" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_end_fragment.py')
+        const unmatched = () => parseFile('unmatched_end_fragment.py')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "BEGIN ESCAPE" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_begin_escape.py')
+        const unmatched = () => parseFile('unmatched_begin_escape.py')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "END ESCAPE" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_end_escape.py')
+        const unmatched = () => parseFile('unmatched_end_escape.py')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
 })
 
 describe('Exception handling tests: pythonic syntax', () => {
     it('throws an exception when "BEGIN FRAGMENT" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_begin_fragment.rs')
+        const unmatched = () => parseFile('unmatched_begin_fragment.rs')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "END FRAGMENT" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_end_fragment.rs')
+        const unmatched = () => parseFile('unmatched_end_fragment.rs')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "BEGIN ESCAPE" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_begin_escape.rs')
+        const unmatched = () => parseFile('unmatched_begin_escape.rs')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "END ESCAPE" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_end_escape.rs')
+        const unmatched = () => parseFile('unmatched_end_escape.rs')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
 })
 
 describe('Rust / Java / C syntax tests', () => {
     it('handles a code section', () => {
-        let parsed = parseFile('./test/samples/code_section.rs')
+        let parsed = parseFile('code_section.rs')
         let expected = {
             RustStyleFragment: 'println!("A normal Rust-style fragment");'
         }
@@ -128,7 +128,7 @@ describe('Rust / Java / C syntax tests', () => {
     })
   
     it('handles the indentation levels', () => {
-        let parsed = parseFile('./test/samples/code_section_2.rs')
+        let parsed = parseFile('code_section_2.rs')
         let expected = {
             RustStyleFragment: 'fn main() {\n    println!("A normal Rust-style fragment");\n}'
         }
@@ -136,7 +136,7 @@ describe('Rust / Java / C syntax tests', () => {
     })
 
     it('handles a nested fragment escape normally', () => {
-        let parsed = parseFile('./test/samples/nested_fragment_escape.c')
+        let parsed = parseFile('nested_fragment_escape.c')
         let expected = {
             TestB: 'is displayed',
             TestA: 'This part\nis displayed'
@@ -145,7 +145,7 @@ describe('Rust / Java / C syntax tests', () => {
     })
 
     it('handles a nested escape with a fragment placed inside the escape text', () => {
-        let parsed = parseFile('./test/samples/nested_escape_test.c')
+        let parsed = parseFile('nested_escape_test.c')
         let expected = {
             TestA: 'This part is displayed'
         }
@@ -155,7 +155,7 @@ describe('Rust / Java / C syntax tests', () => {
 
 describe('Python syntax tests', () => {
     it('Code section', () => {
-        let parsed = parseFile('./test/samples/code_section.py')
+        let parsed = parseFile('code_section.py')
         let expected = {
             "PythonStyleFragment": "print(\"A normal Python code fragment\")"
         }
@@ -163,7 +163,7 @@ describe('Python syntax tests', () => {
     })
     
     it('Indentation levels', () => {
-        let parsed = parseFile('./test/samples/code_section_2.py')
+        let parsed = parseFile('code_section_2.py')
         let expected = {
             "PythonStyleFragmentA": "def main():\n    print(\"A normal Pythonic fragment\")",
             "PythonStyleFragmentB": "self.a = 0\nself.b = 1",
@@ -172,7 +172,7 @@ describe('Python syntax tests', () => {
     })
     
     it('Test for Python-style comments', () => {
-        let parsed = parseFile('./test/samples/normal_py_style.py')
+        let parsed = parseFile('normal_py_style.py')
         let expected = {
             PythonicFragment: "print('TEST')"
         }
@@ -180,7 +180,7 @@ describe('Python syntax tests', () => {
     })
     
     it('Nested fragment escape', () => {
-        let parsed = parseFile('./test/samples/nested_fragment_escape.py')
+        let parsed = parseFile('nested_fragment_escape.py')
         let expected = {
             TestB: 'is displayed',
             TestA: 'This part\nis displayed'
@@ -189,7 +189,7 @@ describe('Python syntax tests', () => {
     })
     
     it('A nested escape with a fragment placed inside the escape text', () => {
-        let parsed = parseFile('./test/samples/nested_escape_test.py')
+        let parsed = parseFile('nested_escape_test.py')
         let expected = {
             TestA: 'This part is displayed'
         }

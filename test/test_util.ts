@@ -1,5 +1,6 @@
-import * as fs from "fs"
-import { ExampleParser } from "../src/index"
+import { resolve } from 'path'
+import { readFileSync } from 'fs'
+import { ExampleParser } from '../src/index'
 
 export function parseStr (text: string) {
     // Initialize the parser
@@ -8,9 +9,11 @@ export function parseStr (text: string) {
 }
 
 export function parseFile (txtPath: string) {
-    // Load a text to test from the FS
-    let text = ''
-    text = fs.readFileSync(txtPath, 'utf8').toString()
+    // Resolve a path
+    const txtPathResolved = resolve(__dirname, './samples', txtPath)
     // Initialize the parser
-    return parseStr(text)
+    return parseStr(
+        // Load a text to test from the FS
+        readFileSync(txtPathResolved, 'utf8').toString()
+    )
 }
