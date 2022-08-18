@@ -118,12 +118,12 @@ export function getCommonStartPadding(lines: Array<string>) {
 }
 
 // Regular expressions, used to parse the examples
-const exampleRegExps: { [id: string] : RegExp; } = {
+const parserRegExps = {
     beginFragment: /[s\t]*(\/\/|#) (BEGIN FRAGMENT): ([A-Za-z_-]+)[s\t]*/,
     endFragment: /[s\t]*(\/\/|#) (END FRAGMENT)[s\t]*/,
     beginEscape: /[s\t]*(\/\/|#) (BEGIN ESCAPE)[s\t]*/,
     endEscape: /[s\t]*(\/\/|#) (END ESCAPE)[s\t]*/,
-}
+} as const
 
 // A stack machine that collects the examples
 // by the special comments, telling about the start and end
@@ -139,16 +139,16 @@ export class ExampleParser {
     detectLineType(line: string): Array<string> | null {
         let result: Array<string> | null = null
         let matchTmp: RegExpMatchArray | null
-        if ((matchTmp = line.match(exampleRegExps.beginFragment))) {
+        if ((matchTmp = line.match(parserRegExps.beginFragment))) {
             result = [ matchTmp[2], matchTmp[3] ]
         }
-        if ((matchTmp = line.match(exampleRegExps.endFragment))) {
+        if ((matchTmp = line.match(parserRegExps.endFragment))) {
             result = [ matchTmp[2] ]
         }
-        if ((matchTmp = line.match(exampleRegExps.beginEscape))) {
+        if ((matchTmp = line.match(parserRegExps.beginEscape))) {
             result = [ matchTmp[2] ]
         }
-        if ((matchTmp = line.match(exampleRegExps.endEscape))) {
+        if ((matchTmp = line.match(parserRegExps.endEscape))) {
             result = [ matchTmp[2] ]
         }
         return result
@@ -248,25 +248,22 @@ export class ExampleParser {
                 }
             }
         }
-
         // Check for the hanging "BEGIN FRAGMENT" statements
         if (fragmentStack.length > 0) {
-            const fstHangingId = fragmentStack[0][0]
+            const fstHangingLine = fragmentStack[0].line
             throw new ParserSyntaxError(
-                `Beginning fragment without ending it on line ${fstHangingId}.` +
-                `Content: "${this.lines[fstHangingId]}"`
+                `Beginning fragment without ending it on line ${fstHangingLine}.` +
+                `Content: "${this.lines[fstHangingLine]}"`
             )
         }
-
         // Check for the hanging "BEGIN ESCAPE" statements
         if (escapeStack.length) {
-            const estHangingId = escapeStack[0][0]
+            const estHangingId = escapeStack[0]
             throw new ParserSyntaxError(
                 `Beginning escape without ending it on line ${estHangingId}.` +
                 `Content: "${this.lines[estHangingId]}"`
             )
         }
-
         // Fill the fragment map with the stack machine results
         for (let fsid = 0; fsid < fragmentSectionRefs.length; fsid++) {
             // Retrieve a current text section
@@ -277,7 +274,6 @@ export class ExampleParser {
             // If a text section is awailable, assign it to the fragment map
             if (textSection) fragmentMap[fsc.name] = textSection
         }
-
         // Return the lines, collected by the stack machine
         return fragmentMap
     }
