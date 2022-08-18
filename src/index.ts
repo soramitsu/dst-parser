@@ -186,12 +186,15 @@ export class ExampleParser {
             lineType = this.detectLineType(this.lines[lineId])
             if (lineType) {
                 if (lineType[0] === 'BEGIN FRAGMENT') {
-                    // fragmentStack.push([lineId, lineType[1]])
+                    // Add a fragment token with a line and a fragment name
+                    // to the fragment stack
                     let fragTok: FragmentToken = {
                         line: lineId,
                         f_name: lineType[1]
                     }
                     fragmentStack.push(fragTok)
+                    // Add the current line to the list of escaped lines
+                    // if it wasn't already escaped
                     if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
                 }
                 else if (lineType[0] === 'END FRAGMENT') {
@@ -201,7 +204,8 @@ export class ExampleParser {
                         // Retrieve the token telling about the beginning
                         // of a given fragment
                         let fragTokBegin = fragmentStack.pop()
-                        // Add a line to the escape list if it wasn't already escaped
+                        // Add the current line to the list of escaped lines
+                        // if it wasn't already escaped
                         if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
                         // Add a fragment section
                         if (fragTokBegin) {
@@ -224,7 +228,10 @@ export class ExampleParser {
                     }
                 }
                 else if (lineType[0] === 'BEGIN ESCAPE') {
+                    // Mark a "begin escape" line in the stack
                     escapeStack.push(lineId)
+                    // Add the current line to the list of escaped lines
+                    // if it wasn't already escaped
                     if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
                 }
                 else if (lineType[0] === 'END ESCAPE') {
