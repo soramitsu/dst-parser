@@ -1,0 +1,29 @@
+// Vitest Snapshot v1
+
+exports[`Rust / Java / C syntax tests > handles a code section 1`] = `
+{
+  "RustStyleFragment": "println!(\\"A normal Rust-style fragment\\");",
+}
+`;
+
+exports[`Rust / Java / C syntax tests > handles a nested escape with a fragment placed inside the escape text 1`] = `
+{
+  "TestA": "This part is displayed",
+}
+`;
+
+exports[`Rust / Java / C syntax tests > handles a nested fragment escape normally 1`] = `
+{
+  "TestA": "This part
+is displayed",
+  "TestB": "is displayed",
+}
+`;
+
+exports[`Rust / Java / C syntax tests > handles the indentation levels 1`] = `
+{
+  "RustStyleFragment": "fn main() {
+    println!(\\"A normal Rust-style fragment\\");
+}",
+}
+`;

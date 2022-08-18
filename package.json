@@ -1,0 +1,43 @@
+{
+  "name": "dst-parser",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "version": "0.0.7",
+  "description": "This package contains a parser for a custom docstring syntax",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "watch": "pnpm run build -- --watch src",
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint src/index.ts",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "keywords": [
+    "documentation",
+    "parsing"
+  ],
+  "author": "6r1d",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@babel/core": "^7.18.10",
+    "@babel/eslint-parser": "^7.18.9",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "@vitest/coverage-c8": "^0.22.0",
+    "eslint": "^8.22.0",
+    "eslint-config-alloy": "^4.6.2",
+    "eslint-config-prettier": "^8.5.0",
+    "typescript": "^4.7.4",
+    "vitest": "^0.22.0"
+  }
+}

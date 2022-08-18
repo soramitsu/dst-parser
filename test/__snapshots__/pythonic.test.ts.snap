@@ -1,0 +1,36 @@
+// Vitest Snapshot v1
+
+exports[`Python syntax tests > A nested escape with a fragment placed inside the escape text 1`] = `
+{
+  "TestA": "This part is displayed",
+}
+`;
+
+exports[`Python syntax tests > Code section 1`] = `
+{
+  "PythonStyleFragment": "print(\\"A normal Python code fragment\\")",
+}
+`;
+
+exports[`Python syntax tests > Indentation levels 1`] = `
+{
+  "PythonStyleFragmentA": "def main():
+    print(\\"A normal Pythonic fragment\\")",
+  "PythonStyleFragmentB": "self.a = 0
+self.b = 1",
+}
+`;
+
+exports[`Python syntax tests > Nested fragment escape 1`] = `
+{
+  "TestA": "This part
+is displayed",
+  "TestB": "is displayed",
+}
+`;
+
+exports[`Python syntax tests > Test for Python-style comments 1`] = `
+{
+  "PythonicFragment": "print('TEST')",
+}
+`;

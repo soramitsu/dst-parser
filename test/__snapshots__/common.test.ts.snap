@@ -1,0 +1,29 @@
+// Vitest Snapshot v1
+
+exports[`Common tests > can check that space padding is equal to a given value 1`] = `true`;
+
+exports[`Common tests > can check that space padding is equal to a given value 2`] = `false`;
+
+exports[`Common tests > can find a common start padding 1`] = `4`;
+
+exports[`Common tests > can find a common start padding 2`] = `2`;
+
+exports[`Common tests > can find a common start padding 3`] = `4`;
+
+exports[`Common tests > can find a common start padding 4`] = `2`;
+
+exports[`Common tests > can handle empty line lists that can not be trimmed 1`] = `[]`;
+
+exports[`Common tests > can trim empty lines at the end, which may change indentation otherwise 1`] = `
+[
+  "Source code is expected to be here",
+]
+`;
+
+exports[`Common tests > can trim empty lines at the start, which may change indentation otherwise 1`] = `
+[
+  "Source code is expected to be here",
+]
+`;
+
+exports[`Common tests > handles an empty string 1`] = `{}`;
