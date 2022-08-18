@@ -1,36 +1,38 @@
 import { parseFile, parseStr } from './test_util'
-import { ExampleSyntaxError, trimEmptyLines, getCommonStartPadding } from "../src/index"
+import { ParserSyntaxError, trimEmptyLines, getCommonStartPadding } from "../src/index"
 import { describe, expect, it } from 'vitest'
 
-describe('Common tests', function () {
-    it('handles an empty string', function () {
+describe('Common tests', () => {
+    it('handles an empty string', () => {
       let parsed = parseStr('')
       let expected = {}
       expect(parsed).toStrictEqual(expected)
     })
 
-    it('can trim empty lines at the start, which may change indentation otherwise', function () {
+    it('can trim empty lines at the start, which may change indentation otherwise', () => {
         let actual_text = 'Source code is expected to be here'
         let lines = ['  ', '   ', actual_text]
         let trimmed = trimEmptyLines(lines)
         expect(trimmed).toStrictEqual([actual_text])
     })
 
-    it('can trim empty lines at the end, which may change indentation otherwise', function () {
+    it('can trim empty lines at the end, which may change indentation otherwise', () => {
         let actual_text = 'Source code is expected to be here'
         let lines = [actual_text, '\t  ', '  \t']
         let trimmed = trimEmptyLines(lines)
         expect(trimmed).toStrictEqual([actual_text])
     })
 
-    it('can handle empty line lists that can not be trimmed', function () {
+    // eslint-disable-next-line prefer-arrow-callback
+    it('can handle empty line lists that can not be trimmed', () => {
         let actual_lines = []
         let lines = []
         let trimmed = trimEmptyLines(lines)
         expect(trimmed).toStrictEqual(actual_lines)
     })
 
-    it('can find a common start padding', function () {
+    // eslint-disable-next-line prefer-arrow-callback
+    it('can find a common start padding', () => {
         let lines = ['    a', '    b', '    c']
         let padding = getCommonStartPadding(lines)
         expect(padding).toStrictEqual(4)
@@ -40,76 +42,60 @@ describe('Common tests', function () {
     })
 })
 
-describe('Exception handling tests: common', function () {
-    it('can create ExampleSyntaxError instances', function () {
+describe('Exception handling tests: common', () => {
+    it('can create ParserSyntaxError instances', () => {
         let message = 'Beginning escape without ending it on line 42.'
-        let ese = new ExampleSyntaxError(message)
-        expect(ese.constructor.name).toStrictEqual('ExampleSyntaxError')
+        let ese = new ParserSyntaxError(message)
+        expect(ese.constructor.name).toStrictEqual('ParserSyntaxError')
     })
 })
 
-describe('Exception handling tests: pythonic syntax', function () {
+describe('Exception handling tests: pythonic syntax', () => {
     it('throws an exception when a "BEGIN FRAGMENT" statement is unmatched', () => {
-        const unmatched = () => {
-            let parsed = parseFile('./test/samples/unmatched_begin_fragment.py')
-        }
-        expect(unmatched).toThrow(Error)
+        const unmatched = () => parseFile('./test/samples/unmatched_begin_fragment.py')
+        expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "END FRAGMENT" statement is unmatched', () => {
-        const unmatched = () => {
-            let parsed = parseFile('./test/samples/unmatched_end_fragment.py')
-        }
-        expect(unmatched).toThrow(Error)
+        const unmatched = () => parseFile('./test/samples/unmatched_end_fragment.py')
+        expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "BEGIN ESCAPE" statement is unmatched', () => {
-        const unmatched = () => {
-            let parsed = parseFile('./test/samples/unmatched_begin_fragment.py')
-        }
-        expect(unmatched).toThrow(Error)
+        const unmatched = () => parseFile('./test/samples/unmatched_begin_fragment.py')
+        expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "END ESCAPE" statement is unmatched', () => {
-        const unmatched = () => {
-            let parsed = parseFile('./test/samples/unmatched_end_escape.py')
-        }
-        expect(unmatched).toThrow(Error)
+        const unmatched = () => parseFile('./test/samples/unmatched_end_escape.py')
+        expect(unmatched).toThrow(ParserSyntaxError)
     })
 })
 
-describe('Exception handling tests: pythonic syntax', function () {
+describe('Exception handling tests: pythonic syntax', () => {
     it('throws an exception when "BEGIN FRAGMENT" statement is unmatched', () => {
-        const unmatched = () => {
-            let parsed = parseFile('./test/samples/unmatched_begin_fragment.rs')
-        }
-        expect(unmatched).toThrow(Error)
+        const unmatched = () => parseFile('./test/samples/unmatched_begin_fragment.rs')
+        expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "END FRAGMENT" statement is unmatched', () => {
-        const unmatched = () => {
-            let parsed = parseFile('./test/samples/unmatched_end_fragment.rs')
-        }
-        expect(unmatched).toThrow(Error)
+        const unmatched = () => parseFile('./test/samples/unmatched_end_fragment.rs')
+        expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "BEGIN ESCAPE" statement is unmatched', () => {
-        const unmatched = () => {
-            let parsed = parseFile('./test/samples/unmatched_begin_escape.rs')
-        }
-        expect(unmatched).toThrow(Error)
+        const unmatched = () => parseFile('./test/samples/unmatched_begin_escape.rs')
+        expect(unmatched).toThrow(ParserSyntaxError)
     })
     
     it('throws an exception when "END ESCAPE" statement is unmatched', () => {
-        const unmatched = () => {
-            let parsed = parseFile('./test/samples/unmatched_end_escape.rs')
-        }
-        expect(unmatched).toThrow(Error)
+        const unmatched = () => parseFile('./test/samples/unmatched_end_escape.rs')
+        expect(unmatched).toThrow(ParserSyntaxError)
     })
 })
 
-describe('Rust / Java / C syntax tests', function () {
-    it('handles a code section', function () {
+describe('Rust / Java / C syntax tests', () => {
+    it('handles a code section', () => {
         let parsed = parseFile('./test/samples/code_section.rs')
         let expected = {
             RustStyleFragment: 'println!("A normal Rust-style fragment");'
@@ -117,7 +103,7 @@ describe('Rust / Java / C syntax tests', function () {
         expect(parsed).toStrictEqual(expected)
     })
   
-    it('handles the indentation levels', function () {
+    it('handles the indentation levels', () => {
         let parsed = parseFile('./test/samples/code_section_2.rs')
         let expected = {
             RustStyleFragment: 'fn main() {\n    println!("A normal Rust-style fragment");\n}'
@@ -143,7 +129,7 @@ describe('Rust / Java / C syntax tests', function () {
     })
 })
 
-describe('Python syntax tests', function () {
+describe('Python syntax tests', () => {
     it('Code section', () => {
         let parsed = parseFile('./test/samples/code_section.py')
         let expected = {
