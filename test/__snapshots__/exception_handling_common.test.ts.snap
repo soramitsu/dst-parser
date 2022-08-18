@@ -1,0 +1,5 @@
+// Vitest Snapshot v1
+
+exports[`Exception handling tests: common > can create ParserSyntaxError instances 1`] = `"ParserSyntaxError"`;
+
+exports[`Exception handling tests: common > can create ParsingError instances 1`] = `"ParsingError"`;
