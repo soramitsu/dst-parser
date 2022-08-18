@@ -77,7 +77,9 @@ export function trimEmptyLines(lines: Array<string>) {
     // filled with spaces or empty.
     // If the lines are empty, 'stub' string replaces undefined,
     // so there's no infinite cycle.
+    /* c8 ignore next */
     while (lines.length && (emptySpace(lines.at(0) || 'stub'))) lines.shift()
+    /* c8 ignore next */
     while (lines.length && (emptySpace(lines.at(-1) || 'stub'))) lines.pop()
     return lines
 }
@@ -198,28 +200,23 @@ export class ExampleParser {
                     if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
                 }
                 else if (lineType[0] === 'END FRAGMENT') {
+                    let fragTokBegin: FragmentToken | undefined
                     // If there's an associated "BEGIN FRAGMENT" statement,
                     // continue normally, throw an error otherwise.
-                    if (fragmentStack.length > 0) {
-                        // Retrieve the token telling about the beginning
-                        // of a given fragment
-                        let fragTokBegin = fragmentStack.pop()
+                    if (
+                        fragmentStack.length > 0 &&
+                        (fragTokBegin = fragmentStack.pop())
+                    ) {
                         // Add the current line to the list of escaped lines
                         // if it wasn't already escaped
                         if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
                         // Add a fragment section
-                        if (fragTokBegin) {
-                            let newSectionRef: SectionRef = {
-                                start: fragTokBegin.line,
-                                end: lineId,
-                                name: fragTokBegin.f_name
-                            }
-                            fragmentSectionRefs.push(newSectionRef)
-                        } else {
-                            throw new ParsingError(
-                                `This code section should not be reached.`
-                            )
+                        let newSectionRef: SectionRef = {
+                            start: fragTokBegin.line,
+                            end: lineId,
+                            name: fragTokBegin.f_name
                         }
+                        fragmentSectionRefs.push(newSectionRef)
                     } else {
                         throw new ParserSyntaxError(
                             `Ending a code fragment without a beginning one on line ${lineId}.` +

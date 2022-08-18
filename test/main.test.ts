@@ -1,5 +1,9 @@
 import { parseFile, parseStr } from './test_util'
-import { ParserSyntaxError, trimEmptyLines, getCommonStartPadding } from "../src/index"
+import { 
+    ParserSyntaxError, ParsingError,
+    trimEmptyLines, getCommonStartPadding,
+    spaceSectionIsEqual
+} from "../src/index"
 import { describe, expect, it } from 'vitest'
 
 describe('Common tests', () => {
@@ -23,7 +27,6 @@ describe('Common tests', () => {
         expect(trimmed).toStrictEqual([actual_text])
     })
 
-    // eslint-disable-next-line prefer-arrow-callback
     it('can handle empty line lists that can not be trimmed', () => {
         let actual_lines = []
         let lines = []
@@ -31,7 +34,6 @@ describe('Common tests', () => {
         expect(trimmed).toStrictEqual(actual_lines)
     })
 
-    // eslint-disable-next-line prefer-arrow-callback
     it('can find a common start padding', () => {
         let lines = ['    a', '    b', '    c']
         let padding = getCommonStartPadding(lines)
@@ -40,6 +42,22 @@ describe('Common tests', () => {
         padding = getCommonStartPadding(lines)
         expect(padding).toStrictEqual(2)
     })
+
+    it('can find a common start padding', () => {
+        let lines = ['    a', '    b', '    c']
+        let padding = getCommonStartPadding(lines)
+        expect(padding).toStrictEqual(4)
+        lines = ['    a', '  b', '   c']
+        padding = getCommonStartPadding(lines)
+        expect(padding).toStrictEqual(2)
+    })
+
+    it('can check that space padding is equal to a given value', () => {
+        let lines = ['    a', '    b', '    c']
+        expect(spaceSectionIsEqual(lines, 4)).toStrictEqual(true)
+        lines = ['    a', '  b', '   c']
+        expect(spaceSectionIsEqual(lines, 4)).toStrictEqual(false)
+    })
 })
 
 describe('Exception handling tests: common', () => {
@@ -47,6 +65,12 @@ describe('Exception handling tests: common', () => {
         let message = 'Beginning escape without ending it on line 42.'
         let ese = new ParserSyntaxError(message)
         expect(ese.constructor.name).toStrictEqual('ParserSyntaxError')
+    })
+
+    it('can create ParsingError instances', () => {
+        let message = 'This code section should not be reached.'
+        let ese = new ParsingError(message)
+        expect(ese.constructor.name).toStrictEqual('ParsingError')
     })
 })
 
@@ -62,7 +86,7 @@ describe('Exception handling tests: pythonic syntax', () => {
     })
     
     it('throws an exception when "BEGIN ESCAPE" statement is unmatched', () => {
-        const unmatched = () => parseFile('./test/samples/unmatched_begin_fragment.py')
+        const unmatched = () => parseFile('./test/samples/unmatched_begin_escape.py')
         expect(unmatched).toThrow(ParserSyntaxError)
     })
     
