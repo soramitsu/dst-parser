@@ -173,11 +173,11 @@ export class ExampleParser {
     }
 
     // Does the actual parsing
-    mapLines(): {[name: string]: string;} {
+    mapLines(): Record<string, string> {
         // Stack machine variables for a fragment
         let fragmentStack: FragmentToken[] = []
         let fragmentSectionRefs: SectionRef[] = []
-        let fragmentMap: {[name: string]: string;} = {}
+        let fragmentMap: Record<string, string> = {}
         // Stack machine variables for escaping
         let escapeStack: number[] = []
         let escapeList: Array<number> = []
