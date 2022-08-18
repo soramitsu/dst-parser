@@ -25,9 +25,34 @@
  *     ```
  */
 
+type FragmentToken = {
+    // A name for "BEGIN FRAGMENT" token
+    f_name: string
+    // A line number the token was found at
+    line: number
+}
+
+// A reference to the section: start line, end line, name
+type SectionRef = {
+    // Start line
+    start: number
+    // End line
+    end: number
+    // Name of the section
+    name: string
+}
+
 // A custom error type to be used with broken syntax
-export class ExampleSyntaxError extends Error {
-    constructor(message:string = '') {
+export class ParserSyntaxError extends Error {
+    constructor(message = '') {
+      super(message)
+      this.message = message
+    }
+}
+
+// A custom error type made to show errors in the parsing process
+export class ParsingError extends Error {
+    constructor(message = '') {
       super(message)
       this.message = message
     }
@@ -52,8 +77,8 @@ export function trimEmptyLines(lines: Array<string>) {
     // filled with spaces or empty.
     // If the lines are empty, 'stub' string replaces undefined,
     // so there's no infinite cycle.
-    while (lines && (emptySpace(lines.at(0) || 'stub'))) lines.shift()
-    while (lines && (emptySpace(lines.at(-1) || 'stub'))) lines.pop()
+    while (lines.length && (emptySpace(lines.at(0) || 'stub'))) lines.shift()
+    while (lines.length && (emptySpace(lines.at(-1) || 'stub'))) lines.pop()
     return lines
 }
 
@@ -92,22 +117,23 @@ export function getCommonStartPadding(lines: Array<string>) {
 
 // Regular expressions, used to parse the examples
 const exampleRegExps: { [id: string] : RegExp; } = {
-    beginFragment: new RegExp('[\s\t]*(\/\/|#) (BEGIN FRAGMENT): ([A-Za-z_\-]+)[\s\t]*'),
-    endFragment: new RegExp('[\s\t]*(\/\/|#) (END FRAGMENT)[\s\t]*'),
-    beginEscape: new RegExp('[\s\t]*(\/\/|#) (BEGIN ESCAPE)[\s\t]*'),
-    endEscape: new RegExp('[\s\t]*(\/\/|#) (END ESCAPE)[\s\t]*'),
+    beginFragment: /[s\t]*(\/\/|#) (BEGIN FRAGMENT): ([A-Za-z_-]+)[s\t]*/,
+    endFragment: /[s\t]*(\/\/|#) (END FRAGMENT)[s\t]*/,
+    beginEscape: /[s\t]*(\/\/|#) (BEGIN ESCAPE)[s\t]*/,
+    endEscape: /[s\t]*(\/\/|#) (END ESCAPE)[s\t]*/,
 }
 
 // A stack machine that collects the examples
 // by the special comments, telling about the start and end
 // of a fragment and an escape section.
 export class ExampleParser {
+    // A list of lines to be parsed
     lines: Array<string>
-
+    // Initialize the parser
     constructor(content: string) {
       this.lines = content.split('\n')
     }
-
+    // Match the line types against the available regular expressions
     detectLineType(line: string): Array<string> | null {
         let result: Array<string> | null = null
         let matchTmp: RegExpMatchArray | null
@@ -130,10 +156,10 @@ export class ExampleParser {
     // or null if it's not available
     retrieveTextSection(start: number, end: number, ignore: Array<number>): string | null {
         let result: string | null = null
-        if (end > start) {
+        if (start < end) {
             let tmpResult: Array<string> = []
             for (let lineId = start; lineId < end; lineId++) {
-                if (ignore.indexOf(lineId) == -1) tmpResult.push(this.lines[lineId])
+                if (ignore.indexOf(lineId) === -1) tmpResult.push(this.lines[lineId])
             }
             if (tmpResult.length > 0) {
                 result = removeCommonIndentation(
@@ -144,53 +170,73 @@ export class ExampleParser {
         return result
     }
 
+    // Does the actual parsing
     mapLines(): {[name: string]: string;} {
         // Stack machine variables for a fragment
-        let fragmentStack = Array()
-        let fragmentSections = Array()
+        let fragmentStack: FragmentToken[] = []
+        let fragmentSectionRefs: SectionRef[] = []
         let fragmentMap: {[name: string]: string;} = {}
         // Stack machine variables for escaping
-        let escapeStack = Array()
-        let escapeList = Array()
+        let escapeStack: number[] = []
+        let escapeList: Array<number> = []
         // Iterate lines, running a stack machine for both fragments
         // and escaping
         let lineType: Array<string> | null
         for (let lineId=0; lineId<this.lines.length; lineId++) {
             lineType = this.detectLineType(this.lines[lineId])
             if (lineType) {
-                if (lineType[0] == 'BEGIN FRAGMENT') {
-                    fragmentStack.push([lineId, lineType[1]])
-                    if (escapeList.indexOf(lineId) == -1) escapeList.push(lineId)
+                if (lineType[0] === 'BEGIN FRAGMENT') {
+                    // fragmentStack.push([lineId, lineType[1]])
+                    let fragTok: FragmentToken = {
+                        line: lineId,
+                        f_name: lineType[1]
+                    }
+                    fragmentStack.push(fragTok)
+                    if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
                 }
-                else if (lineType[0] == 'END FRAGMENT') {
+                else if (lineType[0] === 'END FRAGMENT') {
                     // If there's an associated "BEGIN FRAGMENT" statement,
                     // continue normally, throw an error otherwise.
                     if (fragmentStack.length > 0) {
-                        let tmp = fragmentStack.pop()
-                        if (escapeList.indexOf(lineId) == -1) escapeList.push(lineId)
-                        let fragmentStart: number = tmp[0]
-                        fragmentSections.push([fragmentStart, lineId, tmp[1]])
+                        // Retrieve the token telling about the beginning
+                        // of a given fragment
+                        let fragTokBegin = fragmentStack.pop()
+                        // Add a line to the escape list if it wasn't already escaped
+                        if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
+                        // Add a fragment section
+                        if (fragTokBegin) {
+                            let newSectionRef: SectionRef = {
+                                start: fragTokBegin.line,
+                                end: lineId,
+                                name: fragTokBegin.f_name
+                            }
+                            fragmentSectionRefs.push(newSectionRef)
+                        } else {
+                            throw new ParsingError(
+                                `This code section should not be reached.`
+                            )
+                        }
                     } else {
-                        throw new ExampleSyntaxError(
+                        throw new ParserSyntaxError(
                             `Ending a code fragment without a beginning one on line ${lineId}.` +
                             `Content: "${this.lines[lineId]}"`
                         )
                     }
                 }
-                else if (lineType[0] == 'BEGIN ESCAPE') {
-                    escapeStack.push([lineId, lineType[0]])
-                    if (escapeList.indexOf(lineId) == -1) escapeList.push(lineId)
+                else if (lineType[0] === 'BEGIN ESCAPE') {
+                    escapeStack.push(lineId)
+                    if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
                 }
-                else if (lineType[0] == 'END ESCAPE') {
+                else if (lineType[0] === 'END ESCAPE') {
                     // If there's an associated "BEGIN ESCAPE" statement,
                     // continue normally, throw an error otherwise.
-                    if (fragmentStack.length > 0) {
-                        let tmp = escapeStack.pop()
-                        if (escapeList.indexOf(lineId) == -1) escapeList.push(lineId)
-                        escapeList.push(...range(tmp[0], lineId))
+                    if (escapeStack.length > 0) {
+                        let escapeStartLine = escapeStack.pop()
+                        if (escapeList.indexOf(lineId) === -1) escapeList.push(lineId)
+                        if (escapeStartLine) escapeList.push(...range(escapeStartLine, lineId))
                     }
                     else {
-                        throw new ExampleSyntaxError(
+                        throw new ParserSyntaxError(
                             `Ending the escape section without a beginning one on line ${lineId}.` +
                             `Content: "${this.lines[lineId]}"`
                         )
@@ -198,33 +244,36 @@ export class ExampleParser {
                 }
             }
         }
+
         // Check for the hanging "BEGIN FRAGMENT" statements
         if (fragmentStack.length > 0) {
             const fstHangingId = fragmentStack[0][0]
-            throw new ExampleSyntaxError(
+            throw new ParserSyntaxError(
                 `Beginning fragment without ending it on line ${fstHangingId}.` +
                 `Content: "${this.lines[fstHangingId]}"`
             )
         }
+
         // Check for the hanging "BEGIN ESCAPE" statements
         if (escapeStack.length) {
             const estHangingId = escapeStack[0][0]
-            throw new ExampleSyntaxError(
+            throw new ParserSyntaxError(
                 `Beginning escape without ending it on line ${estHangingId}.` +
                 `Content: "${this.lines[estHangingId]}"`
             )
         }
+
         // Fill the fragment map with the stack machine results
-        for (let fsid = 0; fsid < fragmentSections.length; fsid++) {
-            let startLineId = fragmentSections[fsid][0]
-            let endLineId = fragmentSections[fsid][1]
-            let textSection = this.retrieveTextSection(
-                startLineId, endLineId, escapeList
+        for (let fsid = 0; fsid < fragmentSectionRefs.length; fsid++) {
+            // Retrieve a current text section
+            let fsc = fragmentSectionRefs[fsid]
+            const textSection = this.retrieveTextSection(
+                fsc.start, fsc.end, escapeList
             )
-            if (textSection) {
-                fragmentMap[fragmentSections[fsid][2]] = textSection
-            }
+            // If a text section is awailable, assign it to the fragment map
+            if (textSection) fragmentMap[fsc.name] = textSection
         }
+
         // Return the lines, collected by the stack machine
         return fragmentMap
     }
