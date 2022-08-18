@@ -1,28 +1,8 @@
 /*
- * A stack-machine based Example syntax parser.
- *
- * Spec:
+ * This file contains an implementation of a stack-machine based
+ * custom syntax parser for code examples.
  * 
- *     A text is considered a named fragment when it is located between
- *     "// BEGIN FRAGMENT: <name>" and "// END FRAGMENT", <> not included.
- *     This syntax is case-sensitive.
- * 
- *     Don't use special characters in names. Prefer snake case.
- * 
- *     Fragments can be included in one another.
- *     In that case the lines matching
- *     "// BEGIN FRAGMENT: " and "// END FRAGMENT" are removed.
- *     Elements between "// BEGIN ESCAPE" and "// END ESCAPE"
- *     are excluded unconditionally from the tutorial.
- * 
- * Example code:
- * 
- *     ```ts
- *     import { ExampleParser } from "./example_parser"
- *     let text: string = "// BEGIN FRAGMENT: test\nHello.\n// END FRAGMENT"
- *     let parser_inst: ExampleParser = new ExampleParser(text)
- *     console.log(parser_inst.mapLines())
- *     ```
+ * Please refer to `README.md` for the specification and other details.
  */
 
 type FragmentToken = {
